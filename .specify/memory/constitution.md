@@ -1,50 +1,75 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: (none) → 1.0.0 (initial ratification)
+- Modified principles: N/A (all new)
+- Added sections: Core Principles (5), Constraints, Workflow, Governance
+- Removed sections: none
+- Templates: plan-template.md ✅ (Constitution Check gate aligns); spec-template.md ✅ (scope unchanged); tasks-template.md ✅ (task types compatible)
+- Commands: .cursor/commands/*.md ✅ (no constitution-specific names to update)
+- Follow-up TODOs: none
+-->
+
+# Speckit Bedrock Demo Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Simplicity
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Prefer the simplest approach that meets requirements. Avoid unnecessary abstraction or
+complexity. YAGNI: do not add capability until it is required by a spec or user story.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rationale**: Keeps the codebase maintainable and reduces risk of over-engineering.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Spec-Driven
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Features MUST be specified before implementation. Use `.specify` workflows: specs in
+`specs/`, plans in `plan.md`, tasks in `tasks.md`. New work SHOULD originate from a
+feature spec or an approved amendment.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Ensures shared understanding and traceability from idea to implementation.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Testable
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Changes MUST be verifiable. When a feature spec or plan calls for tests, tests MUST be
+written and MUST fail before implementation (red–green–refactor). Prefer automated
+checks over manual-only validation.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Rationale**: Reduces regressions and documents intended behavior.
+
+### IV. Traceability
+
+Work SHOULD link to specs, plans, and tasks where applicable. Branch names, commit
+messages, and task IDs SHOULD reference the feature or story they implement.
+
+**Rationale**: Makes it possible to understand why code exists and what it fulfills.
+
+### V. Governance
+
+This constitution is the source of project rules. Amendments require documentation,
+version bump, and propagation to dependent templates. All PRs and reviews MUST verify
+compliance with these principles; violations MUST be justified or fixed.
+
+**Rationale**: Single source of truth for how we build and change the project.
+
+## Constraints
+
+- Technology choices MUST align with the implementation plan for each feature.
+- No new mandatory tooling or process beyond what is in the spec/plan unless justified
+  and documented in the constitution or plan.
+
+## Workflow
+
+- Use `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, and related commands as the
+  default path for new features.
+- Code review MUST check alignment with the constitution; complexity MUST be justified.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This constitution supersedes ad-hoc practices when they conflict.
+- Amendments: document change, update version (semantic: MAJOR = breaking principle
+  change, MINOR = new principle/section, PATCH = clarifications), set Last Amended date,
+  and propagate to dependent templates.
+- Compliance: re-check at plan Phase 0 and after Phase 1; flag violations in the
+  Constitution Check section of the plan.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-02-26 | **Last Amended**: 2025-02-26
