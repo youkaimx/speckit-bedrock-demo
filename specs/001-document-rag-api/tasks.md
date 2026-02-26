@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per plan: src/api/, src/services/, src/models/, src/storage/, src/observability/, tests/contract/, tests/integration/, tests/unit/, terraform/
-- [ ] T002 Initialize Python 3.12 project with FastAPI, uvicorn, boto3, pypdf, markdown, structlog, opentelemetry-api, opentelemetry-sdk, opentelemetry-exporter-otlp, httpx in requirements.txt (or pyproject.toml)
-- [ ] T003 [P] Configure linting and formatting (e.g. ruff) in pyproject.toml or separate config
+- [x] T001 Create project structure per plan: src/api/, src/services/, src/models/, src/storage/, src/observability/, tests/contract/, tests/integration/, tests/unit/, terraform/
+- [x] T002 Initialize Python 3.12 project with FastAPI, uvicorn, boto3, pypdf, markdown, structlog, opentelemetry-api, opentelemetry-sdk, opentelemetry-exporter-otlp, httpx in requirements.txt (or pyproject.toml)
+- [x] T003 [P] Configure linting and formatting (e.g. ruff) in pyproject.toml or separate config
 
 ---
 
@@ -38,24 +38,24 @@
 
 ### Terraform (IR-001–IR-003: AWS provider v6, terraform-aws-modules)
 
-- [ ] T004 [P] Add Terraform project with AWS provider v6 (hashicorp/aws >= 6.0) in terraform/main.tf, variables.tf, outputs.tf
-- [ ] T005 [P] Add S3 bucket(s) for documents with encryption at rest (SSE-S3) using terraform-aws-modules in terraform/
-- [ ] T006 [P] Add Cognito user pool and app client using terraform-aws-modules in terraform/
-- [ ] T007 [P] Add ECS cluster, service, and task definition placeholders using terraform-aws-modules in terraform/
-- [ ] T008 [P] Add DynamoDB table (or equivalent) for document metadata keyed by owner_id + filename per data-model.md in terraform/ (terraform-aws-modules if available)
-- [ ] T009 [P] Add S3 Vectors bucket/index (or equivalent) for embeddings with encryption at rest in terraform/ using AWS provider v6 (terraform-aws-modules if available); see plan Storage and IR-001–IR-003 (fixes analysis C1)
+- [x] T004 [P] Add Terraform project with AWS provider v6 (hashicorp/aws >= 6.0) in terraform/main.tf, variables.tf, outputs.tf
+- [x] T005 [P] Add S3 bucket(s) for documents with encryption at rest (SSE-S3) using terraform-aws-modules in terraform/
+- [x] T006 [P] Add Cognito user pool and app client using terraform-aws-modules in terraform/
+- [x] T007 [P] Add ECS cluster, service, and task definition placeholders using terraform-aws-modules in terraform/
+- [x] T008 [P] Add DynamoDB table (or equivalent) for document metadata keyed by owner_id + filename per data-model.md in terraform/ (terraform-aws-modules if available)
+- [x] T009 [P] Add S3 Vectors bucket/index (or equivalent) for embeddings with encryption at rest in terraform/ using AWS provider v6 (terraform-aws-modules if available); see plan Storage and IR-001–IR-003 (fixes analysis C1)
 
 ### Application foundation
 
-- [ ] T010 [P] Implement OAuth/Cognito authentication middleware (validate Bearer token, extract owner_id) in src/api/auth.py
-- [ ] T011 [P] Setup FastAPI app and API routing structure (base path /api/v1) in src/api/main.py
-- [ ] T012 Create Document domain model (filename, owner_id, format, size_bytes, uploaded_at, processing_status, processing_error, processed_at) in src/models/document.py — document identifier is filename per spec
-- [ ] T013 Configure S3 client and document bucket access in src/storage/s3.py
-- [ ] T014 Configure S3 Vectors and Bedrock clients for embeddings and RAG in src/storage/vectors.py and src/storage/bedrock.py (or under services)
-- [ ] T015 [P] Configure structured logging (structlog, JSON, timestamp, level, message, request_id) in src/observability/logging.py
-- [ ] T016 [P] Configure OpenTelemetry (metrics, traces, OTLP export) in src/observability/telemetry.py
-- [ ] T017 Implement per-user rate limiter middleware (throttle by owner_id; return 429 when exceeded) per FR-013 in src/api/rate_limit.py
-- [ ] T018 Setup environment configuration (e.g. pydantic-settings, .env) for AWS_REGION, S3_BUCKET_DOCUMENTS, S3_VECTORS_*, BEDROCK_*, COGNITO_*, OTEL_*, rate limit config per quickstart.md
+- [x] T010 [P] Implement OAuth/Cognito authentication middleware (validate Bearer token, extract owner_id) in src/api/auth.py
+- [x] T011 [P] Setup FastAPI app and API routing structure (base path /api/v1) in src/api/main.py
+- [x] T012 Create Document domain model (filename, owner_id, format, size_bytes, uploaded_at, processing_status, processing_error, processed_at) in src/models/document.py — document identifier is filename per spec
+- [x] T013 Configure S3 client and document bucket access in src/storage/s3.py
+- [x] T014 Configure S3 Vectors and Bedrock clients for embeddings and RAG in src/storage/vectors.py and src/storage/bedrock.py (or under services)
+- [x] T015 [P] Configure structured logging (structlog, JSON, timestamp, level, message, request_id) in src/observability/logging.py
+- [x] T016 [P] Configure OpenTelemetry (metrics, traces, OTLP export) in src/observability/telemetry.py
+- [x] T017 Implement per-user rate limiter middleware (throttle by owner_id; return 429 when exceeded) per FR-013 in src/api/rate_limit.py
+- [x] T018 Setup environment configuration (e.g. pydantic-settings, .env) for AWS_REGION, S3_BUCKET_DOCUMENTS, DYNAMODB_TABLE_METADATA, S3_VECTORS_*, BEDROCK_*, COGNITO_*, OTEL_*, rate limit config per quickstart.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -69,12 +69,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T019 [P] [US1] Implement S3 document storage (upload object, get object, delete object; key by owner_id + filename) in src/storage/s3.py
-- [ ] T020 [P] [US1] Implement document metadata store (create, list by owner_id, get by owner_id+filename, update status, delete) in src/storage/metadata.py
-- [ ] T021 [US1] Implement upload service (validate 25 MB max, PDF/Markdown only, replace-on-same-filename) in src/services/upload_service.py
-- [ ] T022 [US1] Implement POST /api/v1/documents (multipart file, mode=upload_and_analyze|upload_and_queue) and GET /api/v1/documents in src/api/routes/documents.py — response document_id is filename
-- [ ] T023 [US1] Implement DELETE /api/v1/documents/{document_id} in src/api/routes/documents.py — document_id is filename (URL-encoded); remove from S3, metadata, and S3 Vectors per FR-007a
-- [ ] T024 [US1] Add validation and error responses (400 format/size, 401, 403, 404, 429) per contracts/api-contract.md in src/api/routes/documents.py
+- [x] T019 [P] [US1] Implement S3 document storage (upload object, get object, delete object; key by owner_id + filename) in src/storage/s3.py
+- [x] T020 [P] [US1] Implement document metadata store (create, list by owner_id, get by owner_id+filename, update status, delete) in src/storage/metadata.py
+- [x] T021 [US1] Implement upload service (validate 25 MB max, PDF/Markdown only, replace-on-same-filename) in src/services/upload_service.py
+- [x] T022 [US1] Implement POST /api/v1/documents (multipart file, mode=upload_and_analyze|upload_and_queue) and GET /api/v1/documents in src/api/routes/documents.py — response document_id is filename
+- [x] T023 [US1] Implement DELETE /api/v1/documents/{document_id} in src/api/routes/documents.py — document_id is filename (URL-encoded); remove from S3, metadata, and S3 Vectors per FR-007a
+- [x] T024 [US1] Add validation and error responses (400 format/size, 401, 403, 404, 429) per contracts/api-contract.md in src/api/routes/documents.py
 
 **Checkpoint**: User Story 1 complete - upload, list, delete by filename work; processing triggered for upload_and_analyze (see US2)
 
@@ -153,7 +153,7 @@
 ### Parallel Opportunities
 
 - Phase 1: T003 [P]
-- Phase 2: T004–T009 [P] (Terraform); T010, T011, T013, T015, T016 [P] (app foundation)
+- Phase 2: T004–T009 [P] (Terraform); T010, T011, T015, T016 [P] (app foundation)
 - Phase 3: T019, T020 [P]; Phase 4: T025, T026 [P]
 - Phase 6: T036, T037, T039, T040 [P]
 

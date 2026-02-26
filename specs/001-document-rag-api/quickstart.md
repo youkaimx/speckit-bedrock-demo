@@ -45,6 +45,7 @@ Create `.env` (or set env vars):
 # AWS
 AWS_REGION=us-east-1
 S3_BUCKET_DOCUMENTS=<your-bucket>
+DYNAMODB_TABLE_METADATA=<your-document-metadata-table>
 S3_VECTORS_BUCKET_OR_INDEX=<your-s3-vectors-bucket-or-index>   # S3 Vectors for embeddings
 BEDROCK_MODEL_ID=<embedding-and-chat-model-ids>
 
