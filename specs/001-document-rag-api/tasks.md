@@ -43,18 +43,19 @@
 - [ ] T006 [P] Add Cognito user pool and app client using terraform-aws-modules in terraform/
 - [ ] T007 [P] Add ECS cluster, service, and task definition placeholders using terraform-aws-modules in terraform/
 - [ ] T008 [P] Add DynamoDB table (or equivalent) for document metadata keyed by owner_id + filename per data-model.md in terraform/ (terraform-aws-modules if available)
+- [ ] T009 [P] Add S3 Vectors bucket/index (or equivalent) for embeddings with encryption at rest in terraform/ using AWS provider v6 (terraform-aws-modules if available); see plan Storage and IR-001–IR-003 (fixes analysis C1)
 
 ### Application foundation
 
-- [ ] T009 [P] Implement OAuth/Cognito authentication middleware (validate Bearer token, extract owner_id) in src/api/auth.py
-- [ ] T010 [P] Setup FastAPI app and API routing structure (base path /api/v1) in src/api/main.py
-- [ ] T011 Create Document domain model (filename, owner_id, format, size_bytes, uploaded_at, processing_status, processing_error, processed_at) in src/models/document.py — document identifier is filename per spec
-- [ ] T012 Configure S3 client and document bucket access in src/storage/s3.py
-- [ ] T013 Configure S3 Vectors and Bedrock clients for embeddings and RAG in src/storage/vectors.py and src/storage/bedrock.py (or under services)
-- [ ] T014 [P] Configure structured logging (structlog, JSON, timestamp, level, message, request_id) in src/observability/logging.py
-- [ ] T015 [P] Configure OpenTelemetry (metrics, traces, OTLP export) in src/observability/telemetry.py
-- [ ] T016 Implement per-user rate limiter middleware (throttle by owner_id; return 429 when exceeded) per FR-013 in src/api/rate_limit.py
-- [ ] T017 Setup environment configuration (e.g. pydantic-settings, .env) for AWS_REGION, S3_BUCKET_DOCUMENTS, S3_VECTORS_*, BEDROCK_*, COGNITO_*, OTEL_*, rate limit config per quickstart.md
+- [ ] T010 [P] Implement OAuth/Cognito authentication middleware (validate Bearer token, extract owner_id) in src/api/auth.py
+- [ ] T011 [P] Setup FastAPI app and API routing structure (base path /api/v1) in src/api/main.py
+- [ ] T012 Create Document domain model (filename, owner_id, format, size_bytes, uploaded_at, processing_status, processing_error, processed_at) in src/models/document.py — document identifier is filename per spec
+- [ ] T013 Configure S3 client and document bucket access in src/storage/s3.py
+- [ ] T014 Configure S3 Vectors and Bedrock clients for embeddings and RAG in src/storage/vectors.py and src/storage/bedrock.py (or under services)
+- [ ] T015 [P] Configure structured logging (structlog, JSON, timestamp, level, message, request_id) in src/observability/logging.py
+- [ ] T016 [P] Configure OpenTelemetry (metrics, traces, OTLP export) in src/observability/telemetry.py
+- [ ] T017 Implement per-user rate limiter middleware (throttle by owner_id; return 429 when exceeded) per FR-013 in src/api/rate_limit.py
+- [ ] T018 Setup environment configuration (e.g. pydantic-settings, .env) for AWS_REGION, S3_BUCKET_DOCUMENTS, S3_VECTORS_*, BEDROCK_*, COGNITO_*, OTEL_*, rate limit config per quickstart.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -68,12 +69,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Implement S3 document storage (upload object, get object, delete object; key by owner_id + filename) in src/storage/s3.py
-- [ ] T019 [P] [US1] Implement document metadata store (create, list by owner_id, get by owner_id+filename, update status, delete) in src/storage/metadata.py
-- [ ] T020 [US1] Implement upload service (validate 25 MB max, PDF/Markdown only, replace-on-same-filename) in src/services/upload_service.py
-- [ ] T021 [US1] Implement POST /api/v1/documents (multipart file, mode=upload_and_analyze|upload_and_queue) and GET /api/v1/documents in src/api/routes/documents.py — response document_id is filename
-- [ ] T022 [US1] Implement DELETE /api/v1/documents/{document_id} in src/api/routes/documents.py — document_id is filename (URL-encoded); remove from S3, metadata, and S3 Vectors per FR-007a
-- [ ] T023 [US1] Add validation and error responses (400 format/size, 401, 403, 404, 429) per contracts/api-contract.md in src/api/routes/documents.py
+- [ ] T019 [P] [US1] Implement S3 document storage (upload object, get object, delete object; key by owner_id + filename) in src/storage/s3.py
+- [ ] T020 [P] [US1] Implement document metadata store (create, list by owner_id, get by owner_id+filename, update status, delete) in src/storage/metadata.py
+- [ ] T021 [US1] Implement upload service (validate 25 MB max, PDF/Markdown only, replace-on-same-filename) in src/services/upload_service.py
+- [ ] T022 [US1] Implement POST /api/v1/documents (multipart file, mode=upload_and_analyze|upload_and_queue) and GET /api/v1/documents in src/api/routes/documents.py — response document_id is filename
+- [ ] T023 [US1] Implement DELETE /api/v1/documents/{document_id} in src/api/routes/documents.py — document_id is filename (URL-encoded); remove from S3, metadata, and S3 Vectors per FR-007a
+- [ ] T024 [US1] Add validation and error responses (400 format/size, 401, 403, 404, 429) per contracts/api-contract.md in src/api/routes/documents.py
 
 **Checkpoint**: User Story 1 complete - upload, list, delete by filename work; processing triggered for upload_and_analyze (see US2)
 
@@ -87,13 +88,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Implement text extraction (PDF via pypdf, Markdown) in src/services/extract_service.py
-- [ ] T025 [P] [US2] Implement Bedrock embedding invocation in src/services/embedding_service.py
-- [ ] T026 [US2] Implement S3 Vectors storage (store vectors with document_filename, owner_id metadata; delete vectors by owner_id + filename) in src/storage/vectors.py
-- [ ] T027 [US2] Implement processing pipeline (extract → embed → store in S3 Vectors → update document status → schedule S3 object for deletion) in src/services/process_service.py
-- [ ] T028 [US2] Trigger processing asynchronously on upload_and_analyze from upload service in src/services/upload_service.py
-- [ ] T029 [US2] Implement scheduled batch job for pending documents (upload_and_queue) in src/services/batch_process.py — schedule **daily** (or configurable) via ECS Scheduled Task or EventBridge
-- [ ] T030 [US2] Add processing failure handling (set status failed, processing_error; no partial embeddings; do not schedule S3 delete) in src/services/process_service.py
+- [ ] T025 [P] [US2] Implement text extraction (PDF via pypdf, Markdown) in src/services/extract_service.py
+- [ ] T026 [P] [US2] Implement Bedrock embedding invocation in src/services/embedding_service.py
+- [ ] T027 [US2] Implement S3 Vectors storage (store vectors with document_filename, owner_id metadata; delete vectors by owner_id + filename) in src/storage/vectors.py
+- [ ] T028 [US2] Implement processing pipeline (extract → embed → store in S3 Vectors → update document status → schedule S3 object for deletion) in src/services/process_service.py
+- [ ] T029 [US2] Trigger processing asynchronously on upload_and_analyze from upload service in src/services/upload_service.py
+- [ ] T030 [US2] Implement scheduled batch job for pending documents (upload_and_queue) in src/services/batch_process.py — schedule **daily** (or configurable) via ECS Scheduled Task or EventBridge
+- [ ] T031 [US2] Add processing failure handling (set status failed, processing_error; no partial embeddings; do not schedule S3 delete) in src/services/process_service.py
 
 **Checkpoint**: User Story 2 complete - immediate and batch processing work; embeddings in S3 Vectors
 
@@ -107,10 +108,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement retrieval from S3 Vectors (query by embedding, filter by owner_id) in src/services/retrieval_service.py
-- [ ] T032 [US3] Implement RAG service (retrieve chunks → build context → Bedrock InvokeModel for answer) in src/services/rag_service.py
-- [ ] T033 [US3] Implement POST /api/v1/rag/query (accept question, return answer and optional source_document_ids as filenames) in src/api/routes/rag.py
-- [ ] T034 [US3] Handle empty vector store and no relevant chunks (return clear "no knowledge" message, do not fabricate) in src/services/rag_service.py
+- [ ] T032 [US3] Implement retrieval from S3 Vectors (query by embedding, filter by owner_id) in src/services/retrieval_service.py
+- [ ] T033 [US3] Implement RAG service (retrieve chunks → build context → Bedrock InvokeModel for answer) in src/services/rag_service.py
+- [ ] T034 [US3] Implement POST /api/v1/rag/query (accept question, return answer and optional source_document_ids as filenames) in src/api/routes/rag.py
+- [ ] T035 [US3] Handle empty vector store and no relevant chunks (return clear "no knowledge" message, do not fabricate) in src/services/rag_service.py
 
 **Checkpoint**: All user stories complete - upload, process, RAG query, delete by filename
 
@@ -120,11 +121,11 @@
 
 **Purpose**: Containerization, CI, tests, and quickstart validation
 
-- [ ] T035 [P] Add Dockerfile for containerized run (Python 3.12, FastAPI app)
-- [ ] T036 [P] Add GitHub Actions workflow for CI (install deps, lint, test, build image) in .github/workflows/ci.yml
-- [ ] T037 Run quickstart.md validation and fix steps if needed
-- [ ] T038 [P] Add contract tests for POST/GET/DELETE /documents and POST /rag/query per contracts/api-contract.md in tests/contract/ — include 429 for per-user rate limit
-- [ ] T039 [P] Add integration tests for upload, process, RAG, delete flows in tests/integration/
+- [ ] T036 [P] Add Dockerfile for containerized run (Python 3.12, FastAPI app)
+- [ ] T037 [P] Add GitHub Actions workflow for CI (install deps, lint, test, build image) in .github/workflows/ci.yml
+- [ ] T038 Run quickstart.md validation and fix steps if needed
+- [ ] T039 [P] Add contract tests for POST/GET/DELETE /documents and POST /rag/query per contracts/api-contract.md in tests/contract/ — include 429 for per-user rate limit
+- [ ] T040 [P] Add integration tests for upload, process, RAG, delete flows in tests/integration/
 
 ---
 
@@ -147,14 +148,14 @@
 ### Within Each User Story
 
 - Storage/model tasks before services; services before routes
-- T018–T019 can run in parallel; T024–T025 can run in parallel
+- T019–T020 can run in parallel; T025–T026 can run in parallel
 
 ### Parallel Opportunities
 
 - Phase 1: T003 [P]
-- Phase 2: T004–T008 [P] (Terraform); T009, T010, T012, T014, T015 [P] (app foundation)
-- Phase 3: T018, T019 [P]; Phase 4: T024, T025 [P]
-- Phase 6: T035, T036, T038, T039 [P]
+- Phase 2: T004–T009 [P] (Terraform); T010, T011, T013, T015, T016 [P] (app foundation)
+- Phase 3: T019, T020 [P]; Phase 4: T025, T026 [P]
+- Phase 6: T036, T037, T039, T040 [P]
 
 ---
 
@@ -163,9 +164,9 @@
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup  
-2. Complete Phase 2: Foundational (Terraform + app foundation + rate limiter)  
-3. Complete Phase 3: User Story 1 (upload, list, delete by filename)  
-4. **STOP and VALIDATE**: Test upload/list/delete via API; verify 429 when rate limit exceeded  
+2. Complete Phase 2: Foundational (Terraform incl. S3 Vectors + app foundation + rate limiter)
+3. Complete Phase 3: User Story 1 (upload, list, delete by filename)
+4. **STOP and VALIDATE**: Test upload/list/delete via API; verify 429 when rate limit exceeded
 5. Deploy/demo if ready  
 
 ### Incremental Delivery
@@ -186,6 +187,6 @@
 
 - [P] = parallelizable (different files, no dependency on same-phase incomplete tasks)
 - [USn] = maps to user story for traceability
-- Document identifier = **filename** (user-scoped); replace-on-same-filename and 25 MB validation in US1 (T020, T023)
+- Document identifier = **filename** (user-scoped); replace-on-same-filename and 25 MB validation in US1 (T021, T024)
 - Terraform: AWS provider v6; use terraform-aws-modules (Anton Babenko) per IR-003
-- Per-user rate limits (FR-013) and 429 in contract tests (T038)
+- Per-user rate limits (FR-013) and 429 in contract tests (T039)

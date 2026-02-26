@@ -110,7 +110,7 @@ An authenticated user submits a natural-language question. The system retrieves 
 
 ### Key Entities
 
-- **Document**: A user-provided file (PDF or Markdown) stored in object storage; identified by **user-scoped filename** (one filename per user; re-upload with same filename replaces). Has owner, format, size, upload time, and processing status (pending, processed, failed, scheduled for deletion).
+- **Document**: A user-provided file (PDF or Markdown) stored in object storage; identified by **filename (document identifier)** — user-scoped (one filename per user; re-upload with same filename replaces). Has owner, format, size, upload time, and processing status (pending, processed, failed, scheduled for deletion).
 - **Embedding**: A vector representation of document content produced by the foundation model; stored in the vector store and associated with the source document and owner. Retained indefinitely until the user deletes the document (or account); no automatic expiry.
 - **RAG query**: A user question plus retrieved context and the foundation model’s answer; associated with the requesting user and optionally with the documents used for retrieval.
 
