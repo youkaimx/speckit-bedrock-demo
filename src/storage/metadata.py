@@ -1,7 +1,7 @@
 """Document metadata store (DynamoDB): create, list by owner_id, get, update status, delete."""
 
+import contextlib
 from datetime import datetime
-from typing import List, Optional
 
 import boto3
 from botocore.exceptions import ClientError
@@ -26,7 +26,9 @@ def _doc_to_item(doc: Document) -> dict:
         "format": doc.format.value if hasattr(doc.format, "value") else doc.format,
         "size_bytes": doc.size_bytes,
         "uploaded_at": doc.uploaded_at.isoformat(),
-        "processing_status": doc.processing_status.value if hasattr(doc.processing_status, "value") else doc.processing_status,
+        "processing_status": doc.processing_status.value
+        if hasattr(doc.processing_status, "value")
+        else doc.processing_status,
     }
     if doc.processing_error is not None:
         item["processing_error"] = doc.processing_error
@@ -64,8 +66,8 @@ def create_metadata(doc: Document) -> None:
 def list_by_owner(
     owner_id: str,
     limit: int = 100,
-    next_token: Optional[str] = None,
-) -> tuple[List[Document], Optional[str]]:
+    next_token: str | None = None,
+) -> tuple[list[Document], str | None]:
     """List documents by owner_id. Returns (documents, next_token)."""
     table = _get_table()
     params = {
@@ -83,7 +85,7 @@ def list_by_owner(
     return docs, next_tok
 
 
-def get_metadata(owner_id: str, filename: str) -> Optional[Document]:
+def get_metadata(owner_id: str, filename: str) -> Document | None:
     """Get document by owner_id + filename."""
     table = _get_table()
     try:
@@ -100,8 +102,8 @@ def update_status(
     owner_id: str,
     filename: str,
     status: ProcessingStatus,
-    processing_error: Optional[str] = None,
-    processed_at: Optional[datetime] = None,
+    processing_error: str | None = None,
+    processed_at: datetime | None = None,
 ) -> None:
     """Update processing status (and optional processing_error, processed_at)."""
     table = _get_table()
@@ -123,7 +125,5 @@ def update_status(
 def delete_metadata(owner_id: str, filename: str) -> None:
     """Delete metadata record (idempotent)."""
     table = _get_table()
-    try:
+    with contextlib.suppress(ClientError):
         table.delete_item(Key={"owner_id": owner_id, "filename": filename})
-    except ClientError:
-        pass

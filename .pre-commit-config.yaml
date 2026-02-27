@@ -1,0 +1,47 @@
+# Pre-commit hooks per plan Shift-Left (Principle VI).
+# Install: pre-commit install
+# Run all: pre-commit run -a
+# CI should run: pre-commit run -a
+# Uses default Python on PATH (no python3.12 required for hooks). Project app still requires 3.12 per pyproject.toml.
+
+repos:
+  # 1. Generic hooks first
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: debug-statements
+
+  # detect-secrets (moved out of pre-commit-hooks; use dedicated repo)
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+
+  # 2. Python: ruff (lint + format, aligns with pyproject.toml)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.4
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # 3. Terraform (antonbabenko/pre-commit-terraform)
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.105.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+      - id: terraform_tflint
+      - id: terraform_docs
+      # checkov: install separately (e.g. pip install checkov) for security scanning
+      - id: terraform_checkov
+        stages: [manual]

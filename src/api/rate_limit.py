@@ -2,7 +2,6 @@
 
 import time
 from collections import defaultdict
-from typing import Dict, Tuple
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -16,7 +15,7 @@ class InMemoryRateLimiter:
     def __init__(self, requests: int, window_seconds: int):
         self.requests = requests
         self.window_seconds = window_seconds
-        self._counts: Dict[str, list] = defaultdict(list)
+        self._counts: dict[str, list] = defaultdict(list)
 
     def is_allowed(self, key: str) -> bool:
         now = time.monotonic()

@@ -1,6 +1,6 @@
 """OAuth/Cognito authentication middleware: validate Bearer token, extract owner_id."""
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -14,7 +14,7 @@ from starlette.requests import Request
 security = HTTPBearer(auto_error=False)
 
 
-def _decode_owner_id(credentials: Optional[HTTPAuthorizationCredentials]) -> Optional[str]:
+def _decode_owner_id(credentials: HTTPAuthorizationCredentials | None) -> str | None:
     """Extract owner_id from Bearer token. Only accepts dev- tokens or JWT with sub/owner_id claim."""
     if not credentials or not credentials.credentials:
         return None
@@ -31,6 +31,7 @@ def _decode_owner_id(credentials: Optional[HTTPAuthorizationCredentials]) -> Opt
             return None
         import base64
         import json
+
         payload_b64 = parts[1]
         payload_b64 += "=" * (4 - len(payload_b64) % 4)  # padding for urlsafe_b64decode
         payload = json.loads(base64.urlsafe_b64decode(payload_b64))
@@ -45,7 +46,7 @@ def _decode_owner_id(credentials: Optional[HTTPAuthorizationCredentials]) -> Opt
 
 
 async def get_owner_id(
-    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(security)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
 ) -> str:
     """Dependency: require valid Bearer token and return owner_id. Raises 401 if missing/invalid."""
     owner_id = _decode_owner_id(credentials)
@@ -58,8 +59,8 @@ async def get_owner_id(
 
 
 async def get_owner_id_optional(
-    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(security)],
-) -> Optional[str]:
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+) -> str | None:
     """Dependency: return owner_id if token present, else None."""
     return _decode_owner_id(credentials)
 
@@ -73,7 +74,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-def decode_owner_id_from_header(authorization: Optional[str]) -> Optional[str]:
+def decode_owner_id_from_header(authorization: str | None) -> str | None:
     """Decode owner_id from Authorization header (for middleware). Returns None if missing/invalid."""
     if not authorization or not authorization.startswith("Bearer "):
         return None
@@ -90,6 +91,7 @@ def decode_owner_id_from_header(authorization: Optional[str]) -> Optional[str]:
             return None
         import base64
         import json
+
         payload_b64 = parts[1]
         payload_b64 += "=" * (4 - len(payload_b64) % 4)
         payload = json.loads(base64.urlsafe_b64decode(payload_b64))

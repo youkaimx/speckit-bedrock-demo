@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: (none) → 1.0.0 (initial ratification)
-- Modified principles: N/A (all new)
-- Added sections: Core Principles (5), Constraints, Workflow, Governance
+- Version change: 1.0.0 → 1.1.0 (new principle: Shift-Left)
+- Modified principles: none
+- Added sections: Core Principles VI. Shift-Left
 - Removed sections: none
-- Templates: plan-template.md ✅ (Constitution Check gate aligns); spec-template.md ✅ (scope unchanged); tasks-template.md ✅ (task types compatible)
-- Commands: .cursor/commands/*.md ✅ (no constitution-specific names to update)
+- Templates: plan-template.md ✅ (Constitution Check gate reads constitution); spec-template.md ✅ (scope unchanged); tasks-template.md ✅ (task types compatible)
+- Commands: .cursor/commands/*.md ✅ (no updates required)
 - Follow-up TODOs: none
 -->
 
@@ -51,6 +51,18 @@ compliance with these principles; violations MUST be justified or fixed.
 
 **Rationale**: Single source of truth for how we build and change the project.
 
+### VI. Shift-Left
+
+Quality, security, and correctness MUST be addressed as early as possible in the
+lifecycle. Automated checks (lint, tests, security) MUST run at the earliest
+feasible gate (e.g. pre-commit or CI on pull request). Where the spec or plan
+calls for tests, tests MUST be defined or run before or alongside implementation
+(see Principle III). Design and spec phases SHOULD surface defects and
+non-functional requirements so they are fixed left of deployment.
+
+**Rationale**: Catching issues early reduces cost and risk; shift-left practices
+align with Testable and Spec-Driven principles.
+
 ## Constraints
 
 - Technology choices MUST align with the implementation plan for each feature.
@@ -72,4 +84,4 @@ compliance with these principles; violations MUST be justified or fixed.
 - Compliance: re-check at plan Phase 0 and after Phase 1; flag violations in the
   Constitution Check section of the plan.
 
-**Version**: 1.0.0 | **Ratified**: 2025-02-26 | **Last Amended**: 2025-02-26
+**Version**: 1.1.0 | **Ratified**: 2025-02-26 | **Last Amended**: 2026-02-26

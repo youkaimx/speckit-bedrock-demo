@@ -45,52 +45,64 @@ module "s3_documents" {
   }
 }
 
-# Cognito user pool and app client
-module "cognito" {
-  source  = "terraform-aws-modules/cognito/aws"
-  version = "~> 4.0"
-
-  name         = local.name_prefix
-  user_pool_id = "${local.name_prefix}-pool"
+# Cognito user pool and app client (no terraform-aws-modules/cognito; use provider resources)
+resource "aws_cognito_user_pool" "main" {
+  name = "${local.name_prefix}-pool"
 
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
 
-  password_policy = {
-    minimum_length    = 12
-    require_lowercase = true
-    require_uppercase = true
-    require_numbers   = true
-    require_symbols   = true
+  password_policy {
+    minimum_length                   = 12
+    require_lowercase                = true
+    require_uppercase                = true
+    require_numbers                  = true
+    require_symbols                  = true
+    temporary_password_validity_days = 7
   }
 
-  # App client for API (OAuth/OIDC)
-  app_clients = {
-    api_client = {
-      name                 = "api-client"
-      generate_secret       = false
-      access_token_validity = 1
-      id_token_validity     = 1
-      refresh_token_validity = 30
-      token_validity_units = {
-        access_token  = "hours"
-        id_token      = "hours"
-        refresh_token = "days"
-      }
-      explicit_auth_flows = [
-        "ALLOW_USER_PASSWORD_AUTH",
-        "ALLOW_REFRESH_TOKEN_AUTH",
-        "ALLOW_USER_SRP_AUTH"
-      ]
-      supported_identity_providers = ["COGNITO"]
-      callback_urls                = ["https://localhost/callback"]
-      logout_urls                  = ["https://localhost"]
-    }
+  user_pool_add_ons {
+    advanced_security_mode = "OFF"
   }
 
   tags = {
+    Name        = "${local.name_prefix}-pool"
     Environment = var.environment
   }
+}
+
+resource "aws_cognito_user_pool_client" "api_client" {
+  name         = "api-client"
+  user_pool_id = aws_cognito_user_pool.main.id
+
+  generate_secret = false
+
+  access_token_validity  = 1
+  id_token_validity      = 1
+  refresh_token_validity = 30
+
+  token_validity_units {
+    access_token  = "hours"
+    id_token      = "hours"
+    refresh_token = "days"
+  }
+
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH"
+  ]
+  supported_identity_providers = ["COGNITO"]
+
+  callback_urls = ["https://localhost/callback"]
+  logout_urls   = ["https://localhost"]
+}
+
+# Optional Cognito domain (for hosted UI) when cognito_domain_prefix is set
+resource "aws_cognito_user_pool_domain" "main" {
+  count        = length(var.cognito_domain_prefix) > 0 ? 1 : 0
+  domain       = var.cognito_domain_prefix
+  user_pool_id = aws_cognito_user_pool.main.id
 }
 
 # DynamoDB table for document metadata (owner_id + filename)
@@ -104,8 +116,8 @@ module "dynamodb_metadata" {
   billing_mode = "PAY_PER_REQUEST"
 
   attributes = [
-    { name = "owner_id"; type = "S" },
-    { name = "filename"; type = "S" }
+    { name = "owner_id", type = "S" },
+    { name = "filename", type = "S" }
   ]
 
   tags = {
@@ -117,15 +129,13 @@ module "dynamodb_metadata" {
 # ECS cluster (placeholder for Fargate service)
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   cluster_name = local.name_prefix
 
-  fargate_capacity_providers = {
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 100
-      }
+      weight = 100
     }
   }
 

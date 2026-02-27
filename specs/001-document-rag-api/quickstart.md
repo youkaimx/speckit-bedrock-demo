@@ -1,6 +1,6 @@
 # Quickstart: Document Upload and RAG Service
 
-**Feature**: 001-document-rag-api  
+**Feature**: 001-document-rag-api
 **Date**: 2025-02-26
 
 Minimal steps to run the API locally (or in a test environment) and exercise upload, list, RAG query, and delete. Assumes Python 3.12, AWS credentials (or LocalStack), and dependencies installed.
@@ -34,6 +34,8 @@ pip install -r requirements.txt
 ```
 
 (Ensure `requirements.txt` includes FastAPI, uvicorn, boto3, structlog, opentelemetry-*, pypdf, markdown, httpx, pytest, pytest-asyncio.)
+
+**Pre-commit (Shift-Left):** Contributors should run `pre-commit install` so hooks run on commit. CI runs `pre-commit run -a` to apply the same checks (Python ruff, Terraform fmt/validate/tflint/docs/checkov, and generic hooks). See [pre-commit](https://pre-commit.com/) and [antonbabenko/pre-commit-terraform](https://github.com/antonbabenko/pre-commit-terraform) for dependencies (Terraform, tflint, terraform-docs, checkov).
 
 ---
 

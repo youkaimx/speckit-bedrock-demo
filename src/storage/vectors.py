@@ -9,7 +9,6 @@ from src.api.config import get_settings
 
 def get_vectors_client():
     """Placeholder: return client for S3 Vectors when implemented."""
-    settings = get_settings()
     # S3 Vectors / Bedrock client setup in T014, T027, T032
     return None
 
@@ -18,4 +17,5 @@ def get_bedrock_client():
     """Placeholder: return Bedrock client when implemented."""
     settings = get_settings()
     import boto3
+
     return boto3.client("bedrock-runtime", region_name=settings.aws_region)

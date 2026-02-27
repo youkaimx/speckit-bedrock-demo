@@ -1,8 +1,8 @@
 # Feature Specification: Document Upload and RAG Service
 
-**Feature Branch**: `001-document-rag-api`  
-**Created**: 2025-02-26  
-**Status**: Draft  
+**Feature Branch**: `001-document-rag-api`
+**Created**: 2025-02-26
+**Status**: Draft
 **Input**: User description: document upload (PDF/Markdown) stored in object storage; analysis by foundation model via endpoint; embeddings stored in vector store; RAG queries answered by foundation model; documents scheduled for deletion after embeddings created; containerized service; API with OAuth; AWS services; Python; CI with GitHub Actions.
 
 ## Clarifications

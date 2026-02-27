@@ -142,5 +142,5 @@ You can start the server without real S3/DynamoDB to check that the app comes up
 | Full local test (upload/list/delete) | **Option 1** (Terraform + real AWS) or **Option 2** (LocalStack + endpoint wiring). |
 | Quick auth/routing check    | **Option 3** (run server, use `Bearer dev-alice`, expect 401 without token). |
 
-**Auth for local:** Use `Authorization: Bearer dev-<anything>`; no Cognito required.  
+**Auth for local:** Use `Authorization: Bearer dev-<anything>`; no Cognito required.
 **API docs:** http://localhost:8000/docs

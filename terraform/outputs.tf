@@ -10,17 +10,17 @@ output "s3_bucket_documents" {
 
 output "cognito_user_pool_id" {
   description = "Cognito user pool ID"
-  value       = module.cognito.user_pool_id
+  value       = aws_cognito_user_pool.main.id
 }
 
 output "cognito_user_pool_client_id" {
   description = "Cognito app client ID"
-  value       = module.cognito.user_pool_client_id
+  value       = aws_cognito_user_pool_client.api_client.id
 }
 
 output "dynamodb_table_name" {
   description = "DynamoDB table name for document metadata"
-  value       = module.dynamodb_metadata.dynamodb_table_name
+  value       = module.dynamodb_metadata.dynamodb_table_id
 }
 
 output "ecs_cluster_name" {

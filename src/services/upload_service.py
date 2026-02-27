@@ -1,7 +1,7 @@
 """Upload service: validate 25 MB max, PDF/Markdown only, replace-on-same-filename."""
 
-from datetime import datetime, timezone
-from typing import BinaryIO, Optional, Tuple
+from datetime import UTC, datetime
+from typing import BinaryIO
 
 from src.models.document import Document, DocumentFormat, ProcessingStatus
 from src.storage import metadata as metadata_store
@@ -13,15 +13,20 @@ ALLOWED_CONTENT_TYPES = {
     "text/markdown": DocumentFormat.MARKDOWN,
     "text/x-markdown": DocumentFormat.MARKDOWN,
 }
-ALLOWED_EXTENSIONS = {".pdf": DocumentFormat.PDF, ".md": DocumentFormat.MARKDOWN, ".markdown": DocumentFormat.MARKDOWN}
+ALLOWED_EXTENSIONS = {
+    ".pdf": DocumentFormat.PDF,
+    ".md": DocumentFormat.MARKDOWN,
+    ".markdown": DocumentFormat.MARKDOWN,
+}
 
 
-def _infer_format(filename: str, content_type: Optional[str]) -> Optional[DocumentFormat]:
+def _infer_format(filename: str, content_type: str | None) -> DocumentFormat | None:
     fmt = None
     if content_type and content_type.split(";")[0].strip().lower() in ALLOWED_CONTENT_TYPES:
         fmt = ALLOWED_CONTENT_TYPES[content_type.split(";")[0].strip().lower()]
     if fmt is None and filename:
         import os
+
         ext = os.path.splitext(filename)[1].lower()
         fmt = ALLOWED_EXTENSIONS.get(ext)
     return fmt
@@ -29,9 +34,9 @@ def _infer_format(filename: str, content_type: Optional[str]) -> Optional[Docume
 
 def validate_upload(
     filename: str,
-    content_type: Optional[str],
+    content_type: str | None,
     size: int,
-) -> Tuple[Optional[DocumentFormat], Optional[str]]:
+) -> tuple[DocumentFormat | None, str | None]:
     """
     Validate file: format (PDF/Markdown only), size (max 25 MB).
     Returns (format, error_message). format is None if invalid.
@@ -52,7 +57,7 @@ def upload_document(
     owner_id: str,
     filename: str,
     body: BinaryIO,
-    content_type: Optional[str],
+    content_type: str | None,
     size: int,
     mode: str,
 ) -> Document:
@@ -64,8 +69,10 @@ def upload_document(
     fmt, err = validate_upload(filename, content_type, size)
     if err:
         raise ValueError(err)
-    now = datetime.now(timezone.utc)
-    status = ProcessingStatus.PROCESSING if mode == "upload_and_analyze" else ProcessingStatus.PENDING
+    now = datetime.now(UTC)
+    status = (
+        ProcessingStatus.PROCESSING if mode == "upload_and_analyze" else ProcessingStatus.PENDING
+    )
     ct = content_type or ("application/pdf" if fmt == DocumentFormat.PDF else "text/markdown")
     s3_storage.upload_document(owner_id, filename, body, ct)
     doc = Document(
@@ -82,12 +89,14 @@ def upload_document(
     return doc
 
 
-def list_documents(owner_id: str, limit: int = 100, next_token: Optional[str] = None) -> Tuple[list[Document], Optional[str]]:
+def list_documents(
+    owner_id: str, limit: int = 100, next_token: str | None = None
+) -> tuple[list[Document], str | None]:
     """List documents for owner. Returns (documents, next_token)."""
     return metadata_store.list_by_owner(owner_id, limit=limit, next_token=next_token)
 
 
-def get_document(owner_id: str, filename: str) -> Optional[Document]:
+def get_document(owner_id: str, filename: str) -> Document | None:
     """Get document by owner_id + filename."""
     return metadata_store.get_metadata(owner_id, filename)
 

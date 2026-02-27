@@ -1,18 +1,17 @@
 """Document domain model. Document identifier is user-scoped filename."""
 
 from datetime import datetime
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class DocumentFormat(str, Enum):
+class DocumentFormat(StrEnum):
     PDF = "pdf"
     MARKDOWN = "markdown"
 
 
-class ProcessingStatus(str, Enum):
+class ProcessingStatus(StrEnum):
     PENDING = "pending"
     PROCESSING = "processing"
     PROCESSED = "processed"
@@ -31,11 +30,11 @@ class Document(BaseModel):
         default=ProcessingStatus.PENDING,
         description="pending | processing | processed | failed",
     )
-    processing_error: Optional[str] = Field(
+    processing_error: str | None = Field(
         default=None,
         description="Present when status is failed",
     )
-    processed_at: Optional[datetime] = Field(
+    processed_at: datetime | None = Field(
         default=None,
         description="When embedding completed (status processed)",
     )

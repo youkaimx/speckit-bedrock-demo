@@ -1,6 +1,6 @@
 # Data Model: Document Upload and RAG Service
 
-**Feature**: 001-document-rag-api  
+**Feature**: 001-document-rag-api
 **Date**: 2025-02-26
 
 Domain entities, storage mapping, and lifecycle. Aligns with [spec.md](./spec.md) Key Entities and FRs.
@@ -22,9 +22,9 @@ Domain entities, storage mapping, and lifecycle. Aligns with [spec.md](./spec.md
 | **processing_error** | string (optional) | Present when status is `failed`; reason for failure. |
 | **processed_at** | datetime (optional) | When embedding completed (status `processed`). |
 
-**Storage**:  
-- **Raw file**: S3 object at a key derived from `owner_id` and `filename`. Deleted (or lifecycle) after embeddings created (FR-005).  
-- **Metadata**: DynamoDB item keyed by `owner_id` + `filename` (or equivalent table), or derived from S3 list + object metadata.  
+**Storage**:
+- **Raw file**: S3 object at a key derived from `owner_id` and `filename`. Deleted (or lifecycle) after embeddings created (FR-005).
+- **Metadata**: DynamoDB item keyed by `owner_id` + `filename` (or equivalent table), or derived from S3 list + object metadata.
 
 **Lifecycle**:
 - **Create**: On upload (upload and analyze, or upload and queue). Status `pending` or immediately `processing` for “upload and analyze”.

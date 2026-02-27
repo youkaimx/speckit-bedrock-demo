@@ -1,6 +1,7 @@
 """S3 client and document bucket access. Key by owner_id + filename."""
 
-from typing import BinaryIO, Optional
+import contextlib
+from typing import BinaryIO
 
 import boto3
 from botocore.exceptions import ClientError
@@ -39,7 +40,7 @@ def upload_document(
     )
 
 
-def get_document(owner_id: str, filename: str) -> Optional[bytes]:
+def get_document(owner_id: str, filename: str) -> bytes | None:
     """Get object bytes; return None if not found."""
     client = get_s3_client()
     bucket = get_settings().s3_bucket_documents
@@ -58,7 +59,5 @@ def delete_document(owner_id: str, filename: str) -> None:
     client = get_s3_client()
     bucket = get_settings().s3_bucket_documents
     key = document_key(owner_id, filename)
-    try:
+    with contextlib.suppress(ClientError):
         client.delete_object(Bucket=bucket, Key=key)
-    except ClientError:
-        pass

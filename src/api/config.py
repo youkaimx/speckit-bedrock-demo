@@ -1,7 +1,6 @@
 """Environment configuration (pydantic-settings)."""
 
 from functools import lru_cache
-from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,18 +14,18 @@ class Settings(BaseSettings):
 
     # AWS (set AWS_ENDPOINT_URL for LocalStack, e.g. http://localhost:4566)
     aws_region: str = "us-east-1"
-    aws_endpoint_url: Optional[str] = None
+    aws_endpoint_url: str | None = None
     s3_bucket_documents: str = ""
     dynamodb_table_metadata: str = ""
-    s3_vectors_bucket_or_index: Optional[str] = None
-    bedrock_model_id: Optional[str] = None
+    s3_vectors_bucket_or_index: str | None = None
+    bedrock_model_id: str | None = None
 
     # Cognito
-    cognito_user_pool_id: Optional[str] = None
-    cognito_client_id: Optional[str] = None
+    cognito_user_pool_id: str | None = None
+    cognito_client_id: str | None = None
 
     # OTLP / observability
-    otel_exporter_otlp_endpoint: Optional[str] = None
+    otel_exporter_otlp_endpoint: str | None = None
     otel_service_name: str = "document-rag-api"
 
     # Rate limit (per-user requests per window)

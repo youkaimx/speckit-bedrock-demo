@@ -1,8 +1,8 @@
 """POST/GET/DELETE /api/v1/documents. document_id = filename (user-scoped)."""
 
-from typing import Annotated, Optional
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, status, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from src.api.auth import get_owner_id
 from src.models.document import Document
@@ -17,7 +17,9 @@ def _doc_to_response(doc: Document) -> dict:
         "format": doc.format.value if hasattr(doc.format, "value") else doc.format,
         "size_bytes": doc.size_bytes,
         "uploaded_at": doc.uploaded_at.isoformat(),
-        "processing_status": doc.processing_status.value if hasattr(doc.processing_status, "value") else doc.processing_status,
+        "processing_status": doc.processing_status.value
+        if hasattr(doc.processing_status, "value")
+        else doc.processing_status,
         "processing_error": doc.processing_error,
     }
 
@@ -36,7 +38,7 @@ async def upload_document(
     owner_id: Annotated[str, Depends(get_owner_id)],
     file: Annotated[UploadFile, File(description="PDF or Markdown file, max 25 MB")],
     mode: Annotated[str, Form(description="upload_and_analyze | upload_and_queue")],
-    name: Annotated[Optional[str], Form()] = None,
+    name: Annotated[str | None, Form()] = None,
 ):
     """Upload a PDF or Markdown file. document_id in response is the user-scoped filename."""
     if mode not in ("upload_and_analyze", "upload_and_queue"):
@@ -61,6 +63,7 @@ async def upload_document(
         )
     try:
         from io import BytesIO
+
         doc = upload_service.upload_document(
             owner_id=owner_id,
             filename=filename,
@@ -70,7 +73,9 @@ async def upload_document(
             mode=mode,
         )
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"error": str(e)})
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail={"error": str(e)}
+        ) from e
     return _doc_to_response(doc)
 
 
@@ -85,7 +90,7 @@ async def upload_document(
 async def list_documents(
     owner_id: Annotated[str, Depends(get_owner_id)],
     limit: int = 100,
-    next_token: Optional[str] = None,
+    next_token: str | None = None,
 ):
     """List the authenticated user's documents. document_id = filename."""
     docs, next_tok = upload_service.list_documents(owner_id, limit=limit, next_token=next_token)
@@ -113,9 +118,12 @@ async def delete_document(
 ):
     """Delete document and its embeddings. document_id is the user-scoped filename (URL-encoded)."""
     from urllib.parse import unquote
+
     filename = unquote(document_id)
     if not filename:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "Document not found"})
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail={"error": "Document not found"}
+        )
     found = upload_service.delete_document(owner_id, filename)
     if not found:
         raise HTTPException(

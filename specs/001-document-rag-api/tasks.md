@@ -1,6 +1,6 @@
 # Tasks: Document Upload and RAG Service
 
-**Input**: Design documents from `specs/001-document-rag-api/`  
+**Input**: Design documents from `specs/001-document-rag-api/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
 **Tests**: Contract and integration test tasks are included in Polish phase; add earlier per story if TDD is desired.
@@ -27,6 +27,7 @@
 - [x] T001 Create project structure per plan: src/api/, src/services/, src/models/, src/storage/, src/observability/, tests/contract/, tests/integration/, tests/unit/, terraform/
 - [x] T002 Initialize Python 3.12 project with FastAPI, uvicorn, boto3, pypdf, markdown, structlog, opentelemetry-api, opentelemetry-sdk, opentelemetry-exporter-otlp, httpx in requirements.txt (or pyproject.toml)
 - [x] T003 [P] Configure linting and formatting (e.g. ruff) in pyproject.toml or separate config
+- [x] T041 [P] Add .pre-commit-config.yaml (pre-commit-hooks, ruff, pre-commit-terraform: terraform_fmt, terraform_validate, terraform_tflint, terraform_docs, terraform_checkov) per plan Shift-Left; document `pre-commit install` in README or quickstart
 
 ---
 
@@ -44,6 +45,7 @@
 - [x] T007 [P] Add ECS cluster, service, and task definition placeholders using terraform-aws-modules in terraform/
 - [x] T008 [P] Add DynamoDB table (or equivalent) for document metadata keyed by owner_id + filename per data-model.md in terraform/ (terraform-aws-modules if available)
 - [x] T009 [P] Add S3 Vectors bucket/index (or equivalent) for embeddings with encryption at rest in terraform/ using AWS provider v6 (terraform-aws-modules if available); see plan Storage and IR-001–IR-003 (fixes analysis C1)
+- [ ] T042 Configure Terraform for Terraform Cloud backend (state in TFC); add terraform/README.md documenting OIDC setup for AWS authentication from TFC per plan Terraform Cloud
 
 ### Application foundation
 
@@ -122,7 +124,7 @@
 **Purpose**: Containerization, CI, tests, and quickstart validation
 
 - [ ] T036 [P] Add Dockerfile for containerized run (Python 3.12, FastAPI app)
-- [ ] T037 [P] Add GitHub Actions workflow for CI (install deps, lint, test, build image) in .github/workflows/ci.yml
+- [ ] T037 [P] Add GitHub Actions workflow for CI (install deps, run pre-commit run -a, lint, test, build image) in .github/workflows/ci.yml per plan Shift-Left
 - [ ] T038 Run quickstart.md validation and fix steps if needed
 - [ ] T039 [P] Add contract tests for POST/GET/DELETE /documents and POST /rag/query per contracts/api-contract.md in tests/contract/ — include 429 for per-user rate limit
 - [ ] T040 [P] Add integration tests for upload, process, RAG, delete flows in tests/integration/
@@ -152,8 +154,8 @@
 
 ### Parallel Opportunities
 
-- Phase 1: T003 [P]
-- Phase 2: T004–T009 [P] (Terraform); T010, T011, T015, T016 [P] (app foundation)
+- Phase 1: T003, T041 [P]
+- Phase 2: T004–T009 [P] (Terraform); T010, T011, T015, T016 [P] (app foundation); T042 sequential after Terraform code
 - Phase 3: T019, T020 [P]; Phase 4: T025, T026 [P]
 - Phase 6: T036, T037, T039, T040 [P]
 
@@ -163,19 +165,19 @@
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup  
+1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (Terraform incl. S3 Vectors + app foundation + rate limiter)
 3. Complete Phase 3: User Story 1 (upload, list, delete by filename)
 4. **STOP and VALIDATE**: Test upload/list/delete via API; verify 429 when rate limit exceeded
-5. Deploy/demo if ready  
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Setup + Foundational → foundation ready  
-2. US1 → upload, list, delete by filename (MVP)  
-3. US2 → processing (immediate + daily batch), S3 Vectors  
-4. US3 → RAG query  
-5. Polish → Docker, CI, contract tests (incl. 429), integration tests  
+1. Setup + Foundational → foundation ready
+2. US1 → upload, list, delete by filename (MVP)
+3. US2 → processing (immediate + daily batch), S3 Vectors
+4. US3 → RAG query
+5. Polish → Docker, CI (incl. pre-commit run -a), contract tests (incl. 429), integration tests
 
 ### Parallel Team Strategy
 
@@ -190,3 +192,4 @@
 - Document identifier = **filename** (user-scoped); replace-on-same-filename and 25 MB validation in US1 (T021, T024)
 - Terraform: AWS provider v6; use terraform-aws-modules (Anton Babenko) per IR-003
 - Per-user rate limits (FR-013) and 429 in contract tests (T039)
+- Shift-Left (plan): pre-commit in Phase 1 (T041); CI runs pre-commit (T037); Terraform Cloud + OIDC (T042)
