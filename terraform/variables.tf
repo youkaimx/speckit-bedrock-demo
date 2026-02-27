@@ -28,6 +28,9 @@ variable "s3_vectors_bucket_name" {
   default     = ""
 }
 
+# This is needed for the Terraform Cloud workspace
+# to use AWS dynamic credentials
+# tflint-ignore: terraform_unused_declarations
 variable "tfc_aws_dynamic_credentials" {
   description = "Object containing AWS dynamic credentials configuration"
   type = object({

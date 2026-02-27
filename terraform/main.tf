@@ -25,9 +25,10 @@ locals {
 }
 
 # S3 bucket for documents (SSE-S3 encryption at rest)
+# v5.x fixes aws_region.name deprecation (uses id) for AWS provider 6
 module "s3_documents" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 4.0"
+  version = "~> 5.0"
 
   bucket = "${local.name_prefix}-documents"
 
