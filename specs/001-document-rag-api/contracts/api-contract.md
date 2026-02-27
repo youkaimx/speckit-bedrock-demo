@@ -1,6 +1,6 @@
 # API Contract: Document Upload and RAG Service
 
-**Feature**: 001-document-rag-api  
+**Feature**: 001-document-rag-api
 **Date**: 2025-02-26
 
 REST API surface for upload (with modes), list, delete, and RAG query. All endpoints require OAuth (Bearer token) via **Amazon Cognito**. **Document identifier** is the user-scoped **filename** (one filename per user; re-upload with same filename replaces). Base path: `/api/v1` (or as configured). **Per-user rate limits** apply; excess requests return `429 Too Many Requests`.

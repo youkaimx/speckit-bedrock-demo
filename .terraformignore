@@ -1,0 +1,10 @@
+# Local Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+*.log
+.idea/
+.vscode/

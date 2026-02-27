@@ -1,7 +1,7 @@
 # Specification Quality Checklist: Document Upload and RAG Service
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning  
-**Created**: 2025-02-26  
+**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Created**: 2025-02-26
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality

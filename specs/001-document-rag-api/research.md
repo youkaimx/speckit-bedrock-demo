@@ -1,6 +1,6 @@
 # Research: Document Upload and RAG Service
 
-**Feature**: 001-document-rag-api  
+**Feature**: 001-document-rag-api
 **Date**: 2025-02-26
 
 Decisions and rationale for technical choices. All NEEDS CLARIFICATION from the plan are resolved here.
