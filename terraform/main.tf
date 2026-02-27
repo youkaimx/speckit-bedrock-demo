@@ -6,6 +6,14 @@ terraform {
       version = ">= 6.0"
     }
   }
+  cloud {
+
+    organization = "youkaimx"
+
+    workspaces {
+      name = "speckit-bedrock-demo"
+    }
+  }
 }
 
 provider "aws" {
