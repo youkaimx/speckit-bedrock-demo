@@ -2,6 +2,7 @@
 
 from typing import Annotated
 
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from src.api.auth import get_owner_id
@@ -32,6 +33,7 @@ def _doc_to_response(doc: Document) -> dict:
         400: {"description": "Invalid format, missing file/mode, or file > 25 MB"},
         401: {"description": "Missing or invalid token"},
         429: {"description": "Rate limit exceeded"},
+        503: {"description": "S3/DynamoDB unavailable (e.g. bucket/table missing with LocalStack)"},
     },
 )
 async def upload_document(
@@ -75,6 +77,17 @@ async def upload_document(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail={"error": str(e)}
+        ) from e
+    except ClientError as e:
+        code = e.response.get("Error", {}).get("Code", "Unknown")
+        msg = e.response.get("Error", {}).get("Message", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "error": "Storage error (check S3 bucket and DynamoDB table exist, e.g. LocalStack setup)",
+                "code": code,
+                "message": msg,
+            },
         ) from e
     return _doc_to_response(doc)
 

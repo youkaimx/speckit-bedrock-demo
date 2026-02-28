@@ -1,12 +1,12 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0 (new principle: Shift-Left)
+- Version change: 1.1.0 → 1.2.0 (new principle: Documentation)
 - Modified principles: none
-- Added sections: Core Principles VI. Shift-Left
+- Added sections: Core Principles VII. Documentation
 - Removed sections: none
 - Templates: plan-template.md ✅ (Constitution Check gate reads constitution); spec-template.md ✅ (scope unchanged); tasks-template.md ✅ (task types compatible)
 - Commands: .cursor/commands/*.md ✅ (no updates required)
-- Follow-up TODOs: none
+- Follow-up TODOs: Plans (e.g. specs/001-document-rag-api/plan.md) may add a Documentation row to Constitution Check table when next updated.
 -->
 
 # Speckit Bedrock Demo Constitution
@@ -63,6 +63,17 @@ non-functional requirements so they are fixed left of deployment.
 **Rationale**: Catching issues early reduces cost and risk; shift-left practices
 align with Testable and Spec-Driven principles.
 
+### VII. Documentation
+
+Document everything. Every class, function, resource (e.g. Terraform resource or
+module), and other publicly exposed unit of code MUST have a brief commentary
+describing its purpose. The project itself (e.g. README or top-level docs) MUST
+describe what the project does, how to run it, and how it fits the spec/plan.
+
+**Rationale**: Purpose comments and project-level documentation reduce onboarding
+cost, support traceability (Principle IV), and make maintenance and review
+possible without inferring intent from code alone.
+
 ## Constraints
 
 - Technology choices MUST align with the implementation plan for each feature.
@@ -84,4 +95,4 @@ align with Testable and Spec-Driven principles.
 - Compliance: re-check at plan Phase 0 and after Phase 1; flag violations in the
   Constitution Check section of the plan.
 
-**Version**: 1.1.0 | **Ratified**: 2025-02-26 | **Last Amended**: 2026-02-26
+**Version**: 1.2.0 | **Ratified**: 2025-02-26 | **Last Amended**: 2026-02-28

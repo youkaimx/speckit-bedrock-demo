@@ -8,13 +8,24 @@ from botocore.exceptions import ClientError
 
 from src.api.config import get_settings
 from src.models.document import Document, DocumentFormat, ProcessingStatus
+from src.observability.logging import get_logger
 
 
 def _get_table():
+    """DynamoDB table: single place where the DynamoDB client/resource is created.
+    Uses get_settings(); for LocalStack set AWS_ENDPOINT_URL=http://localhost:4566
+    and DYNAMODB_TABLE_METADATA=<table-name> in .env, then restart the app."""
     settings = get_settings()
     kwargs = {"region_name": settings.aws_region}
-    if settings.aws_endpoint_url:
-        kwargs["endpoint_url"] = settings.aws_endpoint_url
+    endpoint = (settings.aws_endpoint_url or "").strip()
+    if endpoint:
+        kwargs["endpoint_url"] = endpoint
+    get_logger().debug(
+        "DynamoDB client config",
+        aws_region=settings.aws_region,
+        aws_endpoint_url=settings.aws_endpoint_url or None,
+        dynamodb_table_metadata=settings.dynamodb_table_metadata,
+    )
     dynamodb = boto3.resource("dynamodb", **kwargs)
     return dynamodb.Table(settings.dynamodb_table_metadata)
 

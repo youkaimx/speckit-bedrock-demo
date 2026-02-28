@@ -39,13 +39,15 @@
 
 ### Terraform (IR-001–IR-003: AWS provider v6, terraform-aws-modules)
 
+**Phasing per plan “Cloud infrastructure phasing”**: Step 1 = minimum for initial testing (S3 bucket + DynamoDB table; see [LOCAL_TESTING.md](../../docs/LOCAL_TESTING.md)). Later steps = Cognito, ECS, S3 Vectors, TFC backend, as implementation progresses.
+
 - [x] T004 [P] Add Terraform project with AWS provider v6 (hashicorp/aws >= 6.0) in terraform/main.tf, variables.tf, outputs.tf
 - [x] T005 [P] Add S3 bucket(s) for documents with encryption at rest (SSE-S3) using terraform-aws-modules in terraform/
+- [x] T008 [P] Add DynamoDB table (or equivalent) for document metadata keyed by owner_id + filename per data-model.md in terraform/ (terraform-aws-modules if available)
 - [x] T006 [P] Add Cognito user pool and app client using terraform-aws-modules in terraform/
 - [x] T007 [P] Add ECS cluster, service, and task definition placeholders using terraform-aws-modules in terraform/
-- [x] T008 [P] Add DynamoDB table (or equivalent) for document metadata keyed by owner_id + filename per data-model.md in terraform/ (terraform-aws-modules if available)
 - [x] T009 [P] Add S3 Vectors bucket/index (or equivalent) for embeddings with encryption at rest in terraform/ using AWS provider v6 (terraform-aws-modules if available); see plan Storage and IR-001–IR-003 (fixes analysis C1)
-- [ ] T042 Configure Terraform for Terraform Cloud backend (state in TFC); add terraform/README.md documenting OIDC setup for AWS authentication from TFC per plan Terraform Cloud
+- [x] T042 Configure Terraform for Terraform Cloud backend (state in TFC); add terraform/README.md documenting OIDC setup for AWS authentication from TFC per plan Terraform Cloud *(done by user)*
 
 ### Application foundation
 
@@ -58,6 +60,7 @@
 - [x] T016 [P] Configure OpenTelemetry (metrics, traces, OTLP export) in src/observability/telemetry.py
 - [x] T017 Implement per-user rate limiter middleware (throttle by owner_id; return 429 when exceeded) per FR-013 in src/api/rate_limit.py
 - [x] T018 Setup environment configuration (e.g. pydantic-settings, .env) for AWS_REGION, S3_BUCKET_DOCUMENTS, DYNAMODB_TABLE_METADATA, S3_VECTORS_*, BEDROCK_*, COGNITO_*, OTEL_*, rate limit config per quickstart.md
+- [x] T043 [P] Configure structured logging verbosity per plan Logging: add log_level to config (e.g. LOG_LEVEL in src/api/config.py and .env); make configure_logging(level=...) in src/observability/logging.py use config when level not passed; add CLI (e.g. --log-level) via entrypoint or run script so command line overrides config when both set; log to stdout by default; document in quickstart or README
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -155,7 +158,7 @@
 ### Parallel Opportunities
 
 - Phase 1: T003, T041 [P]
-- Phase 2: T004–T009 [P] (Terraform); T010, T011, T015, T016 [P] (app foundation); T042 sequential after Terraform code
+- Phase 2: T004–T009 [P] (Terraform); T010, T011, T015, T016, T043 [P] (app foundation); T042 sequential after Terraform code
 - Phase 3: T019, T020 [P]; Phase 4: T025, T026 [P]
 - Phase 6: T036, T037, T039, T040 [P]
 
@@ -193,3 +196,4 @@
 - Terraform: AWS provider v6; use terraform-aws-modules (Anton Babenko) per IR-003
 - Per-user rate limits (FR-013) and 429 in contract tests (T039)
 - Shift-Left (plan): pre-commit in Phase 1 (T041); CI runs pre-commit (T037); Terraform Cloud + OIDC (T042)
+- Logging (plan): structured logging with configurable verbosity via CLI and config file; CLI overrides config (T043)

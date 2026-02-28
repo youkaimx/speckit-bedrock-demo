@@ -58,14 +58,25 @@ COGNITO_CLIENT_ID=<client-id>
 
 # Optional: OTLP for observability
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+
+# Optional: log level (DEBUG, INFO, WARNING, ERROR); default INFO
+LOG_LEVEL=INFO
 ```
 
 ---
 
 ## 4. Run the API
 
+**Option A** — uvicorn (use `LOG_LEVEL` from `.env` if set):
+
 ```bash
 uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Option B** — run entrypoint with CLI log level (command line overrides config):
+
+```bash
+python -m src.api.run --reload --log-level DEBUG
 ```
 
 API base URL: `http://localhost:8000`. OpenAPI docs: `http://localhost:8000/docs`.

@@ -16,18 +16,6 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "cognito_domain_prefix" {
-  description = "Cognito hosted UI domain prefix (optional)"
-  type        = string
-  default     = ""
-}
-
-variable "s3_vectors_bucket_name" {
-  description = "S3 Vectors bucket/index name (create via Console/CLI if Terraform provider does not yet support S3 Vectors)"
-  type        = string
-  default     = ""
-}
-
 # This is needed for the Terraform Cloud workspace
 # to use AWS dynamic credentials
 # tflint-ignore: terraform_unused_declarations

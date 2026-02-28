@@ -22,6 +22,22 @@ Build a containerized API service that lets authenticated users upload legal doc
 **Scale/Scope**: Single-tenant per user (isolated by OAuth identity); document and embedding counts scoped per user
 **Infrastructure**: All project infrastructure MUST be defined and provisioned via Terraform. Terraform runs in **Terraform Cloud** with state stored there; AWS authentication from Terraform Cloud via **OIDC** (no long-lived AWS keys). AWS provider version 6 (`hashicorp/aws` &gt;= 6.0.0). Where Terraform modules are used, use [terraform-aws-modules](https://github.com/terraform-aws-modules) (Anton Babenko); custom modules only when no suitable module exists, documented in this plan.
 
+### Logging
+
+The application MUST use **structured logging** (e.g. structlog). Log level / verbosity MUST be configurable via:
+
+1. **Command line** (e.g. `--log-level DEBUG`)
+2. **Configuration file** (e.g. a `log_level` or `logging.level` setting)
+
+When both are provided, the **command line option takes precedence** over the configuration file.
+
+### Cloud infrastructure phasing
+
+Implementation of cloud infrastructure MUST be separated into **at least two steps**, aligned with what the implementation actually needs at each stage.
+
+- **Step 1 (minimum for initial testing)**: Provision only the resources required for the earliest testable slice. As stated in [LOCAL_TESTING.md](../../docs/LOCAL_TESTING.md), the minimum for initial testing is a **DynamoDB table** (document metadata) and an **S3 bucket** (documents). Terraform tasks MUST reflect this: one task (or coherent set) for “S3 bucket + DynamoDB table” so the team can run and test upload/list/delete against real AWS or LocalStack before adding more infra.
+- **Later steps**: Add further infrastructure (Cognito, ECS, S3 Vectors, etc.) as separate tasks, gated by implementation progress—e.g. add Cognito when auth is integrated; add S3 Vectors / Bedrock when processing and RAG are implemented. Tasks in [tasks.md](./tasks.md) SHOULD be ordered so that Terraform work is split accordingly (minimum infra first; then infra required for the next user story or capability).
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -34,6 +50,7 @@ Build a containerized API service that lets authenticated users upload legal doc
 | IV. Traceability | Pass | Branch and specs link to this plan; tasks will reference stories. |
 | V. Governance | Pass | No constitution violations. |
 | VI. Shift-Left | Pass | Pre-commit hooks (Terraform + Python) and CI run lint, format, validate, security checks at earliest gate. |
+| VII. Documentation | Pass | Plan and specs are documented; code and infra must carry purpose comments per constitution. |
 
 ## Project Structure
 
