@@ -6,21 +6,22 @@ Ways to run and test the Document RAG API locally.
 
 ## Option 1: Real AWS (Terraform + .env)
 
+Current Terraform provisions only the **minimum for initial testing** (S3 bucket + DynamoDB table) per plan; that is enough for upload, list, and delete. Cognito, ECS, and S3 Vectors are added in later Terraform steps when needed.
+
 1. **Provision infrastructure** (from repo root):
 
    ```bash
    cd terraform
    terraform init
-   terraform apply -var="cognito_domain_prefix=your-unique-prefix"
+   terraform apply
    ```
 
-2. **Create `.env`** from Terraform outputs:
+2. **Create `.env`** from Terraform outputs (the only outputs with current Step 1 infra):
 
    ```bash
    export AWS_REGION=$(terraform -chdir=terraform output -raw aws_region)
    export S3_BUCKET_DOCUMENTS=$(terraform -chdir=terraform output -raw s3_bucket_documents)
    export DYNAMODB_TABLE_METADATA=$(terraform -chdir=terraform output -raw dynamodb_table_name)
-   # Optional: COGNITO_USER_POOL_ID, COGNITO_USER_POOL_CLIENT_ID
    ```
 
    Or copy `.env.example` to `.env` and paste the output values.
@@ -33,6 +34,8 @@ Ways to run and test the Document RAG API locally.
    pip install -r requirements.txt
    uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
    ```
+
+   To set log verbosity: put `LOG_LEVEL=DEBUG` (or INFO, WARNING, ERROR) in `.env`, or run with the run entrypoint so CLI overrides config: `python -m src.api.run --reload --log-level DEBUG`.
 
 4. **Use a dev token** (no Cognito needed for local calls):
 
@@ -104,6 +107,10 @@ Use [LocalStack](https://localhost.localstack.cloud/) to emulate S3 and DynamoDB
 
    So for a quick LocalStack test, you’d add endpoint support in config and in the S3/DynamoDB client calls. The app reads `AWS_ENDPOINT_URL` from the environment; set it (e.g. in `.env`) so boto3 talks to LocalStack.
 
+   **If you get 503 on upload:** Ensure the bucket and table exist. Create them with the commands in step 2 before calling the API.
+
+   **Where DynamoDB is used:** The app creates the DynamoDB client in one place: `src/storage/metadata.py`, function `_get_table()`. It uses `boto3.resource("dynamodb", region_name=..., endpoint_url=...)` where `endpoint_url` is set from **`AWS_ENDPOINT_URL`** in your environment or `.env`. Settings are cached at startup—**restart the app** after changing `.env` so it picks up `AWS_ENDPOINT_URL`, `S3_BUCKET_DOCUMENTS`, and `DYNAMODB_TABLE_METADATA`.
+
 4. **Run the app** as in Option 1 (venv, `uvicorn`), and use **`Bearer dev-alice`** and the same curl/`/docs` flow.
 
 ---
@@ -126,7 +133,7 @@ You can start the server without real S3/DynamoDB to check that the app comes up
      ```bash
      curl -s http://localhost:8000/api/v1/documents
      ```
-   - **With dev token** → 200 with empty list or 500 if storage isn’t configured:
+   - **With dev token** → 200 with empty list or 503 if storage isn’t configured:
      ```bash
      curl -s http://localhost:8000/api/v1/documents -H "Authorization: Bearer dev-alice"
      ```

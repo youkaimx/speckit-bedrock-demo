@@ -7,6 +7,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
+from src.api.config import get_settings
+from src.observability.logging import get_logger
+
 # In production, validate JWT against Cognito (e.g. jose + JWKS or Cognito API).
 # For now we accept a Bearer token and treat the first segment (or a fixed claim) as owner_id.
 # Full Cognito validation: decode JWT, verify signature with Cognito JWKS, extract "sub" as owner_id.
@@ -49,6 +52,12 @@ async def get_owner_id(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
 ) -> str:
     """Dependency: require valid Bearer token and return owner_id. Raises 401 if missing/invalid."""
+    settings = get_settings()
+    get_logger().debug(
+        "Auth/Cognito config",
+        cognito_user_pool_id=settings.cognito_user_pool_id,
+        cognito_client_id=settings.cognito_client_id,
+    )
     owner_id = _decode_owner_id(credentials)
     if not owner_id:
         raise HTTPException(

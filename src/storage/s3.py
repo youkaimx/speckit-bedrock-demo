@@ -7,13 +7,22 @@ import boto3
 from botocore.exceptions import ClientError
 
 from src.api.config import get_settings
+from src.observability.logging import get_logger
 
 
 def get_s3_client():
+    """Return S3 client; uses AWS_ENDPOINT_URL for LocalStack."""
     settings = get_settings()
     kwargs = {"region_name": settings.aws_region}
-    if settings.aws_endpoint_url:
-        kwargs["endpoint_url"] = settings.aws_endpoint_url
+    endpoint = (settings.aws_endpoint_url or "").strip()
+    if endpoint:
+        kwargs["endpoint_url"] = endpoint
+    get_logger().debug(
+        "S3 client config",
+        aws_region=settings.aws_region,
+        aws_endpoint_url=settings.aws_endpoint_url or None,
+        s3_bucket_documents=settings.s3_bucket_documents or None,
+    )
     return boto3.client("s3", **kwargs)
 
 
