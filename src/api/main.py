@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from src.api.auth import AuthMiddleware
 from src.api.config import get_settings
 from src.api.rate_limit import RateLimitMiddleware
-from src.api.routes import documents
+from src.api.routes import documents, rag
 from src.observability.logging import configure_logging
 from src.observability.telemetry import setup_telemetry
 
@@ -36,3 +36,4 @@ app.add_middleware(AuthMiddleware)
 
 # API v1 (base path /api/v1)
 app.include_router(documents.router, prefix="/api/v1")
+app.include_router(rag.router, prefix="/api/v1")
