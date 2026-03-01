@@ -96,6 +96,27 @@ def list_by_owner(
     return docs, next_tok
 
 
+def list_by_status(
+    status: ProcessingStatus,
+    limit: int = 100,
+    next_token: dict | None = None,
+) -> tuple[list[Document], dict | None]:
+    """List documents by processing_status (scan with filter). For batch job. Returns (documents, next_token)."""
+    table = _get_table()
+    params = {
+        "FilterExpression": "processing_status = :s",
+        "ExpressionAttributeValues": {":s": status.value if hasattr(status, "value") else status},
+        "Limit": limit,
+    }
+    if next_token:
+        params["ExclusiveStartKey"] = next_token
+    resp = table.scan(**params)
+    items = resp.get("Items", [])
+    docs = [_item_to_doc(i) for i in items]
+    last_key = resp.get("LastEvaluatedKey")
+    return docs, last_key
+
+
 def get_metadata(owner_id: str, filename: str) -> Document | None:
     """Get document by owner_id + filename."""
     table = _get_table()
@@ -115,8 +136,10 @@ def update_status(
     status: ProcessingStatus,
     processing_error: str | None = None,
     processed_at: datetime | None = None,
+    clear_processing_error: bool = False,
 ) -> None:
-    """Update processing status (and optional processing_error, processed_at)."""
+    """Update processing status (and optional processing_error, processed_at).
+    Set clear_processing_error=True to REMOVE processing_error (e.g. when starting or on success)."""
     table = _get_table()
     expr = "SET processing_status = :s"
     values = {":s": status.value if hasattr(status, "value") else status}
@@ -126,6 +149,8 @@ def update_status(
     if processed_at is not None:
         expr += ", processed_at = :p"
         values[":p"] = processed_at.isoformat()
+    if clear_processing_error:
+        expr += " REMOVE processing_error"
     table.update_item(
         Key={"owner_id": owner_id, "filename": filename},
         UpdateExpression=expr,

@@ -28,7 +28,9 @@ class Settings(BaseSettings):
     s3_bucket_documents: str = Field(default="", validation_alias="S3_BUCKET_DOCUMENTS")
     dynamodb_table_metadata: str = Field(default="", validation_alias="DYNAMODB_TABLE_METADATA")
     s3_vectors_bucket_or_index: str | None = None
+    s3_vectors_index: str = Field(default="default", validation_alias="S3_VECTORS_INDEX")
     bedrock_model_id: str | None = None
+    bedrock_rag_model_id: str | None = Field(default=None, validation_alias="BEDROCK_RAG_MODEL_ID")
 
     # Cognito
     cognito_user_pool_id: str | None = None
@@ -44,7 +46,6 @@ class Settings(BaseSettings):
     # Rate limit (per-user requests per window)
     rate_limit_requests: int = 60
     rate_limit_window_seconds: int = 60
-
 
 
 @lru_cache

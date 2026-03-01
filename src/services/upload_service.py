@@ -6,6 +6,7 @@ from typing import BinaryIO
 from src.models.document import Document, DocumentFormat, ProcessingStatus
 from src.storage import metadata as metadata_store
 from src.storage import s3 as s3_storage
+from src.storage import vectors as vectors_storage
 
 MAX_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB
 ALLOWED_CONTENT_TYPES = {
@@ -110,6 +111,6 @@ def delete_document(owner_id: str, filename: str) -> bool:
     if not doc:
         return False
     s3_storage.delete_document(owner_id, filename)
+    vectors_storage.delete_vectors_by_document(owner_id, filename)
     metadata_store.delete_metadata(owner_id, filename)
-    # T023: remove from S3 Vectors when US2 is implemented (delete_vectors_by_document)
     return True

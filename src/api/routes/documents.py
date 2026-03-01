@@ -3,11 +3,20 @@
 from typing import Annotated
 
 from botocore.exceptions import ClientError
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
 
 from src.api.auth import get_owner_id
 from src.models.document import Document
-from src.services import upload_service
+from src.services import process_service, upload_service
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -37,6 +46,7 @@ def _doc_to_response(doc: Document) -> dict:
     },
 )
 async def upload_document(
+    background_tasks: BackgroundTasks,
     owner_id: Annotated[str, Depends(get_owner_id)],
     file: Annotated[UploadFile, File(description="PDF or Markdown file, max 25 MB")],
     mode: Annotated[str, Form(description="upload_and_analyze | upload_and_queue")],
@@ -89,6 +99,8 @@ async def upload_document(
                 "message": msg,
             },
         ) from e
+    if mode == "upload_and_analyze":
+        background_tasks.add_task(process_service.process_document, owner_id, doc.filename)
     return _doc_to_response(doc)
 
 

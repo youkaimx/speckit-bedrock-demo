@@ -6,7 +6,7 @@ Ways to run and test the Document RAG API locally.
 
 ## Option 1: Real AWS (Terraform + .env)
 
-Current Terraform provisions only the **minimum for initial testing** (S3 bucket + DynamoDB table) per plan; that is enough for upload, list, and delete. Cognito, ECS, and S3 Vectors are added in later Terraform steps when needed.
+Terraform provisions S3 (documents), DynamoDB (metadata), **S3 Vectors** (embeddings bucket + index), and **IAM policies** for Bedrock and S3 Vectors. Cognito and ECS are added in later steps when needed.
 
 1. **Provision infrastructure** (from repo root):
 
@@ -16,15 +16,18 @@ Current Terraform provisions only the **minimum for initial testing** (S3 bucket
    terraform apply
    ```
 
-2. **Create `.env`** from Terraform outputs (the only outputs with current Step 1 infra):
+2. **Create `.env`** from Terraform outputs:
 
    ```bash
    export AWS_REGION=$(terraform -chdir=terraform output -raw aws_region)
    export S3_BUCKET_DOCUMENTS=$(terraform -chdir=terraform output -raw s3_bucket_documents)
    export DYNAMODB_TABLE_METADATA=$(terraform -chdir=terraform output -raw dynamodb_table_name)
+   export S3_VECTORS_BUCKET_OR_INDEX=$(terraform -chdir=terraform output -raw s3_vectors_bucket_name)
+   export S3_VECTORS_INDEX=$(terraform -chdir=terraform output -raw s3_vectors_index_name)
+   # Optional: BEDROCK_MODEL_ID=amazon.titan-embed-text-v2:0  BEDROCK_RAG_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
    ```
 
-   Or copy `.env.example` to `.env` and paste the output values.
+   Or copy `env.example` to `.env` and paste the output values. For RAG and processing you need Bedrock model access enabled in the AWS account (and the optional env vars above).
 
 3. **Install and run**:
 

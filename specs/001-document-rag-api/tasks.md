@@ -93,13 +93,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement text extraction (PDF via pypdf, Markdown) in src/services/extract_service.py
-- [ ] T026 [P] [US2] Implement Bedrock embedding invocation in src/services/embedding_service.py
-- [ ] T027 [US2] Implement S3 Vectors storage (store vectors with document_filename, owner_id metadata; delete vectors by owner_id + filename) in src/storage/vectors.py
-- [ ] T028 [US2] Implement processing pipeline (extract → embed → store in S3 Vectors → update document status → schedule S3 object for deletion) in src/services/process_service.py
-- [ ] T029 [US2] Trigger processing asynchronously on upload_and_analyze from upload service in src/services/upload_service.py
-- [ ] T030 [US2] Implement scheduled batch job for pending documents (upload_and_queue) in src/services/batch_process.py — schedule **daily** (or configurable) via ECS Scheduled Task or EventBridge
-- [ ] T031 [US2] Add processing failure handling (set status failed, processing_error; no partial embeddings; do not schedule S3 delete) in src/services/process_service.py
+- [x] T025 [P] [US2] Implement text extraction (PDF via pypdf, Markdown) in src/services/extract_service.py
+- [x] T026 [P] [US2] Implement Bedrock embedding invocation in src/services/embedding_service.py
+- [x] T027 [US2] Implement S3 Vectors storage (store vectors with document_filename, owner_id metadata; delete vectors by owner_id + filename) in src/storage/vectors.py
+- [x] T028 [US2] Implement processing pipeline (extract → embed → store in S3 Vectors → update document status → schedule S3 object for deletion) in src/services/process_service.py
+- [x] T029 [US2] Trigger processing asynchronously on upload_and_analyze from upload service in src/services/upload_service.py
+- [x] T030 [US2] Implement scheduled batch job for pending documents (upload_and_queue) in src/services/batch_process.py — schedule **daily** (or configurable) via ECS Scheduled Task or EventBridge
+- [x] T031 [US2] Add processing failure handling (set status failed, processing_error; no partial embeddings; do not schedule S3 delete) in src/services/process_service.py
 
 **Checkpoint**: User Story 2 complete - immediate and batch processing work; embeddings in S3 Vectors
 
@@ -113,10 +113,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement retrieval from S3 Vectors (query by embedding, filter by owner_id) in src/services/retrieval_service.py
-- [ ] T033 [US3] Implement RAG service (retrieve chunks → build context → Bedrock InvokeModel for answer) in src/services/rag_service.py
-- [ ] T034 [US3] Implement POST /api/v1/rag/query (accept question, return answer and optional source_document_ids as filenames) in src/api/routes/rag.py
-- [ ] T035 [US3] Handle empty vector store and no relevant chunks (return clear "no knowledge" message, do not fabricate) in src/services/rag_service.py
+- [x] T032 [US3] Implement retrieval from S3 Vectors (query by embedding, filter by owner_id) in src/services/retrieval_service.py
+- [x] T033 [US3] Implement RAG service (retrieve chunks → build context → Bedrock InvokeModel for answer) in src/services/rag_service.py
+- [x] T034 [US3] Implement POST /api/v1/rag/query (accept question, return answer and optional source_document_ids as filenames) in src/api/routes/rag.py
+- [x] T035 [US3] Handle empty vector store and no relevant chunks (return clear "no knowledge" message, do not fabricate) in src/services/rag_service.py
 
 **Checkpoint**: All user stories complete - upload, process, RAG query, delete by filename
 
